@@ -1,0 +1,87 @@
+import 'package:flutter/material.dart';
+import '../controllers/game_controller.dart';
+import '../models/game_item.dart';
+import './widgets/game_tile.dart';
+
+class LevelBase extends StatefulWidget {
+  final String title;
+  final Color color;
+  final String progress;
+  final List<GameItem> items;
+  final VoidCallback onSuccess;
+
+  const LevelBase({
+    super.key,
+    required this.title,
+    required this.color,
+    required this.progress,
+    required this.items,
+    required this.onSuccess,
+  });
+
+  @override
+  State<LevelBase> createState() => _LevelBaseState();
+}
+
+class _LevelBaseState extends State<LevelBase> {
+  final controller = GameController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            Text(
+              widget.progress,
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 30),
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(20),
+                itemCount: widget.items.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                itemBuilder: (_, i) => GameTile(
+                  image: widget.items[i].image,
+                  selected: controller.selectedIndex == i,
+                  onTap: () {
+                    setState(() => controller.selectedIndex = i);
+
+                    if (controller.validateSelection(i, widget.items)) {
+                      Future.delayed(
+                        const Duration(milliseconds: 400),
+                        widget.onSuccess,
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Wrong! Try again'),
+                          duration: Duration(milliseconds: 600),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+            Text(
+              'Level : ${widget.title}',
+              style: TextStyle(
+                fontSize: 28,
+                color: widget.color,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 30),
+          ],
+        ),
+      ),
+    );
+  }
+}

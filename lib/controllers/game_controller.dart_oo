@@ -1,0 +1,11 @@
+import '../models/game_item.dart';
+import '../core/game_rules.dart';
+
+class GameController {
+  int selectedIndex = -1;
+
+  bool validateSelection(int index, List items) {
+    final types = items.map((e) => e.type).toList().cast<String>();
+    return GameRules.isCorrect(items[index].type, types);
+  }
+}
